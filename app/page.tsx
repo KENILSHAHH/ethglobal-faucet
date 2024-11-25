@@ -53,35 +53,28 @@ export default function ChainSelector() {
       setTxStatus('')
     }
   }
-
   const sendTransaction = async () => {
     if (!recipientAddress) {
       setTxStatus('Please enter a valid address.')
       return
     }
-
     setTxStatus('Initiating transaction...')
     setIsButtonDisabled(true)
-console.log(PRIVATE_KEY)
     try {
       const client = createWalletClient({
         account : privateKeyToAccount(`0x${PRIVATE_KEY}`),
         chain: selectedChain === 'amoy' ? polygonAmoy : sepolia,
         transport: http()
       })
- console.log(client)
-   
-
       const hash = await client.sendTransaction({
         account: privateKeyToAccount(`0x${PRIVATE_KEY}`),
-        to: recipientAddress,
+        to: `0x${recipientAddress.replace(/^0x/, '')}`,
         value: parseEther('0.5')
       })
-console.log(hash)
       setTxStatus(`Transaction sent! Hash: ${hash}`)
       localStorage.setItem(`lastClaim_${selectedChain}_${recipientAddress}`, Date.now().toString())
     } catch (error) {
-      setTxStatus(`Error: ${error.message}`)
+      setTxStatus(`Error: ${(error as any).message}`)
     } finally {
       checkCooldown()
     }
