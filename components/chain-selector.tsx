@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import { useState, useEffect } from 'react'
 import {
@@ -9,20 +9,18 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
+import { InfinityIcon } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { createWalletClient, http, parseEther } from 'viem'
 import { polygonAmoy, sepolia } from 'viem/chains'
-import Image from "next/image"
-import { privateKeyToAccount } from 'viem/accounts'
- 
-const PRIVATE_KEY = process.env.NEXT_PUBLIC_PRIVATE_KEY;
-console.log(PRIVATE_KEY)
+
+const PRIVATE_KEY = process.env.PRIVATE_KEY
 
 const COOLDOWN_PERIOD = 60 * 60 * 1000 
 
 export default function ChainSelector() {
   const [selectedChain, setSelectedChain] = useState<string>('amoy')
-  const [recipientAddress, setRecipientAddress] = useState<string>("")
+  const [recipientAddress, setRecipientAddress] = useState<string>('')
   const [txStatus, setTxStatus] = useState<string>('')
   const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(false)
 
@@ -62,22 +60,21 @@ export default function ChainSelector() {
 
     setTxStatus('Initiating transaction...')
     setIsButtonDisabled(true)
-console.log(PRIVATE_KEY)
+
     try {
       const client = createWalletClient({
-        account : privateKeyToAccount(`0x${PRIVATE_KEY}`),
         chain: selectedChain === 'amoy' ? polygonAmoy : sepolia,
         transport: http()
       })
- console.log(client)
-   
+
+      const [address] = await client.getAddresses()
 
       const hash = await client.sendTransaction({
-        account: privateKeyToAccount(`0x${PRIVATE_KEY}`),
+        account: address,
         to: recipientAddress,
         value: parseEther('0.5')
       })
-console.log(hash)
+
       setTxStatus(`Transaction sent! Hash: ${hash}`)
       localStorage.setItem(`lastClaim_${selectedChain}_${recipientAddress}`, Date.now().toString())
     } catch (error) {
@@ -90,12 +87,7 @@ console.log(hash)
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-8 bg-white p-4">
       <div className="text-primary">
-        <Image
-          src="https://cryptologos.cc/logos/polygon-matic-logo.png"
-          width={100}
-          height={100}
-          alt='Polygon logo'
-        />
+        <InfinityIcon className="h-16 w-16 rotate-90 transform text-[#6C3CE9]" />
       </div>
       <div className="flex w-full max-w-md flex-col gap-4">
         <Select value={selectedChain} onValueChange={handleChainChange}>
